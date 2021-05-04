@@ -17,19 +17,19 @@ VertexArray::~VertexArray() {
 
 }
 
-void VertexArray::setAttribute(GLuint index, GLuint size, GLenum type, bool normalized, GLuint stride, const void *offset) {
+void VertexArray::setAttribute(GLuint index, GLuint size, GLenum type, bool normalized, GLuint stride, const void *offset) const {
     bind();
     glVertexAttribPointer(index, size, type, normalized ? GL_TRUE : GL_FALSE, stride, offset);
     unbind();
 }
 
-void VertexArray::enableAttribute(GLuint index) {
+void VertexArray::enableAttribute(GLuint index) const {
     bind();
     glEnableVertexAttribArray(index);
     unbind();
 }
 
-void VertexArray::bind() {
+void VertexArray::bind() const {
     glBindVertexArray(object);
 }
 
@@ -37,8 +37,17 @@ void VertexArray::unbind() {
     glBindVertexArray(0);
 }
 
+void VertexArray::drawArrays(GLenum mode, GLuint first, GLsizei count) const {
+    bind();
+    glDrawArrays(mode, first, count);
+    unbind();
+}
+
 VertexBuffer::VertexBuffer(GLenum usage, GLsizei size) {
     glGenBuffers(1, &object);
+    bind(GL_ARRAY_BUFFER);
+    glBufferData(GL_ARRAY_BUFFER, size, nullptr, usage);
+    unbind(GL_ARRAY_BUFFER);
 }
 
 VertexBuffer::VertexBuffer(VertexBuffer &&rhs) {
@@ -50,7 +59,7 @@ VertexBuffer::~VertexBuffer() {
     glDeleteBuffers(1, &object);
 }
 
-void VertexBuffer::map(GLenum access, std::function<void(void *)> callback) {
+void VertexBuffer::map(GLenum access, std::function<void(void *)> callback) const {
     bind(GL_ARRAY_BUFFER);
     void *data;
     data = glMapBuffer(GL_ARRAY_BUFFER, access);
@@ -59,7 +68,7 @@ void VertexBuffer::map(GLenum access, std::function<void(void *)> callback) {
     unbind(GL_ARRAY_BUFFER);
 }
 
-void VertexBuffer::bind(GLenum target) {
+void VertexBuffer::bind(GLenum target) const {
     glBindBuffer(target, object);
 }
 
@@ -81,6 +90,7 @@ ShaderProgram ShaderProgram::loadFromFile(const std::filesystem::path &vertexSha
         if(!vertexShaderFile || !fragmentShaderFile) {
             vertexShaderFile.close();
             fragmentShaderFile.close();
+            throw std::runtime_error("Cannot read shader files.");
         }
 
         auto readFile = [&](std::ifstream &in) -> std::string {
@@ -91,7 +101,8 @@ ShaderProgram ShaderProgram::loadFromFile(const std::filesystem::path &vertexSha
         };
 
         auto compileShader = [&](GLuint shader, const std::string &source) -> void {
-            glShaderSource(shader, 1, (const GLchar *const *)source.c_str(), nullptr);
+            auto ptr = source.c_str();
+            glShaderSource(shader, 1, &ptr, nullptr);
             glCompileShader(shader);
 
             GLint success;
@@ -120,6 +131,8 @@ ShaderProgram ShaderProgram::loadFromFile(const std::filesystem::path &vertexSha
                 GLint success;
                 glGetProgramiv(program, GL_LINK_STATUS, &success);
                 if(success != GL_TRUE) {
+                    char log[512];
+                    glGetProgramInfoLog(program, 512, nullptr, log);
                     glDeleteProgram(program);
                     throw std::runtime_error("Cannot link program.");
                 }
@@ -128,11 +141,13 @@ ShaderProgram ShaderProgram::loadFromFile(const std::filesystem::path &vertexSha
                 glDeleteShader(fragmentShader);
                 throw;
             }
+            glDeleteShader(fragmentShader);
         }
         catch(...) {
             glDeleteShader(vertexShader);
             throw;
         }
+        glDeleteShader(vertexShader);
     }
     catch (...) {
         vertexShaderFile.close();
@@ -144,26 +159,33 @@ ShaderProgram ShaderProgram::loadFromFile(const std::filesystem::path &vertexSha
     return ShaderProgram(program);
 }
 
-ShaderProgram::ShaderProgram(ShaderProgram &&) {
-
+ShaderProgram::ShaderProgram(ShaderProgram &&rhs) {
+    this->object = rhs.object;
+    rhs.object = 0;
 }
 
 ShaderProgram::~ShaderProgram() {
-
+    glDeleteProgram(object);
 }
 
-void ShaderProgram::setUniform(const std::string &var, const glm::vec4 &val) {
+#include <glm/gtc/type_ptr.hpp>
 
+void ShaderProgram::setUniform(const std::string &var, const glm::vec4 &val) const {
+    use();
+    glUniform4fv(glGetUniformLocation(object, var.c_str()), 1, glm::value_ptr(val));
+    disuse();
 }
 
-void ShaderProgram::serUniform(const std::string &var, const glm::vec4 &val) {
-
+void ShaderProgram::serUniform(const std::string &var, const glm::vec4 &val) const {
+    use();
+    glUniformMatrix4fv(glGetUniformLocation(object, var.c_str()), 1, GL_FALSE, glm::value_ptr(val));
+    disuse();
 }
 
-void ShaderProgram::use() {
-
+void ShaderProgram::use() const {
+    glUseProgram(object);
 }
 
 void ShaderProgram::disuse() {
-
+    glUseProgram(0);
 }

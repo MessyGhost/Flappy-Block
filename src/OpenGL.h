@@ -11,11 +11,14 @@ public:
     VertexArray(VertexArray &&);
     ~VertexArray();
 
-    void setAttribute(GLuint index, GLuint size, GLenum type, bool normalized, GLuint stride, const void *offset);
-    void enableAttribute(GLuint index);
+    void setAttribute(GLuint index, GLuint size, GLenum type, bool normalized, GLuint stride, const void *offset) const;
+    void enableAttribute(GLuint index) const;
 
-    void bind();
+    void bind() const;
     static void unbind();
+
+    void drawArrays(GLenum mode, GLuint first, GLsizei count) const;
+
 private:
     GLuint object;
 };
@@ -26,9 +29,9 @@ public:
     VertexBuffer(VertexBuffer &&);
     ~VertexBuffer();
 
-    void map(GLenum access, std::function<void(void *data)> callback);
+    void map(GLenum access, std::function<void(void *data)> callback) const;
 
-    void bind(GLenum target);
+    void bind(GLenum target) const;
     static void unbind(GLenum target);
 
 private:
@@ -39,14 +42,14 @@ class ShaderProgram {
 private:
     ShaderProgram(GLuint object);
 public:
-    ShaderProgram loadFromFile(const std::filesystem::path &vertexShaderPath, const std::filesystem::path &fragmentShaderPath);
+    static ShaderProgram loadFromFile(const std::filesystem::path &vertexShaderPath, const std::filesystem::path &fragmentShaderPath);
     ShaderProgram(ShaderProgram &&);
     ~ShaderProgram();
 
-    void setUniform(const std::string &var, const glm::vec4 &val);
-    void serUniform(const std::string &var, const glm::vec4 &val);
+    void setUniform(const std::string &var, const glm::vec4 &val) const;
+    void serUniform(const std::string &var, const glm::vec4 &val) const;
 
-    void use();
+    void use() const;
     static void disuse();
 private:
     GLuint object;

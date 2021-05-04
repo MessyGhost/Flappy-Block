@@ -21,6 +21,10 @@ private:
 
     static constexpr float gravity = -1.0f;
     float playerSpeedX, playerSpeedY;
+
+    VertexBuffer vertexBuffer;
+    VertexArray vertexArray;
+    ShaderProgram shaderProgram;
 };
 
 

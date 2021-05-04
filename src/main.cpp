@@ -26,6 +26,7 @@ int main() {
 
     auto window = glfwCreateWindow(800, 600, "Flappy Block", nullptr, nullptr);
     glfwMakeContextCurrent(window);
+    glewInit();
 
     glfwSetKeyCallback(window, &OnKey);
 
