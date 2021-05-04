@@ -4,8 +4,8 @@
 
 std::unique_ptr<FlappyBlock> pgame;
 
-void OnKey(GLFWwindow *window, int key, int scancode, int action, int mod) {
-    if(action == GLFW_KEY_DOWN) {
+void OnKey(GLFWwindow *window, int key, int scancode, int action, int mods) {
+    if(action == GLFW_PRESS) {
         switch(key) {
             case GLFW_KEY_ESCAPE:
                 pgame->onEsc();
@@ -15,6 +15,10 @@ void OnKey(GLFWwindow *window, int key, int scancode, int action, int mod) {
                 break;
         }
     }
+}
+
+void OnResize(GLFWwindow *window, int w, int h) {
+    pgame->resizeFrame(w, h);
 }
 
 int main() {
@@ -29,8 +33,10 @@ int main() {
     glewInit();
 
     glfwSetKeyCallback(window, &OnKey);
+    glfwSetFramebufferSizeCallback(window, &OnResize);
 
     pgame.reset(new FlappyBlock);
+    pgame->resizeFrame(800, 600);
 
     while(glfwWindowShouldClose(window) != GL_TRUE) {
         glfwPollEvents();

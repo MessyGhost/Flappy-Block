@@ -3,6 +3,7 @@
 #include "OpenGL.h"
 
 #include <queue>
+#include <chrono>
 
 class FlappyBlock {
 public:
@@ -11,6 +12,7 @@ public:
     void render();
     void playerJump();
     void onEsc();
+    void resizeFrame(int w, int h);
 private:
     void genWall();
 private:
@@ -19,12 +21,20 @@ private:
 
     std::queue<float> wallHeights;
 
-    static constexpr float gravity = -1.0f;
-    float playerSpeedX, playerSpeedY;
+    //gravitational acceleration
+    static constexpr float gravity = -9.8f;
+    //the speed on y axis to set when jumping
+    static constexpr float jumpStrength = 6.0f;
+
+    float playerSpeedX, playerSpeedY, playerHeight;
 
     VertexBuffer vertexBuffer;
     VertexArray vertexArray;
     ShaderProgram shaderProgram;
+
+    bool firstTick;
+    std::chrono::time_point<std::chrono::steady_clock> lastTick;
+
 };
 
 

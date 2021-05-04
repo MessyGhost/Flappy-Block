@@ -47,7 +47,7 @@ public:
     ~ShaderProgram();
 
     void setUniform(const std::string &var, const glm::vec4 &val) const;
-    void serUniform(const std::string &var, const glm::vec4 &val) const;
+    void setUniform(const std::string &var, const glm::mat4 &val) const;
 
     void use() const;
     static void disuse();

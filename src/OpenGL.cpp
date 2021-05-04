@@ -176,7 +176,7 @@ void ShaderProgram::setUniform(const std::string &var, const glm::vec4 &val) con
     disuse();
 }
 
-void ShaderProgram::serUniform(const std::string &var, const glm::vec4 &val) const {
+void ShaderProgram::setUniform(const std::string &var, const glm::mat4 &val) const {
     use();
     glUniformMatrix4fv(glGetUniformLocation(object, var.c_str()), 1, GL_FALSE, glm::value_ptr(val));
     disuse();
