@@ -115,7 +115,9 @@ ShaderProgram ShaderProgram::loadFromFile(const std::filesystem::path &vertexSha
             GLint success;
             glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
             if(success != GL_TRUE) {
-                throw std::runtime_error("Cannot pass shader compilation.");
+                char log[512];
+                glGetShaderInfoLog(shader, 512, nullptr, log);
+                throw std::runtime_error(std::string("Cannot pass shader compilation.\n") + log);
             }
         };
 
@@ -141,7 +143,7 @@ ShaderProgram ShaderProgram::loadFromFile(const std::filesystem::path &vertexSha
                     char log[512];
                     glGetProgramInfoLog(program, 512, nullptr, log);
                     glDeleteProgram(program);
-                    throw std::runtime_error("Cannot link program.");
+                    throw std::runtime_error(std::string("Cannot link program.\n") + log);
                 }
             }
             catch(...) {
