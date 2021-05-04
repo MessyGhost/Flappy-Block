@@ -26,6 +26,8 @@
 cmake . -DCMAKE_TOOLCHAIN_PATH=<[vcpkg安装路径]/scripts/buildsystems/vcpkg.cmake>
 ```
 
+*最新的commit经过测试，已经可以在`Arch Linux`下编译运行。构建时，你可能需要额外安装`mesa`。*
+
 ## 其他
 
 - 本游戏有计分系统，体现在玩家的颜色（蓝绿通道）上。分数和跨越的障碍数无关，是按行进距离算的，最大可记录4096分。
