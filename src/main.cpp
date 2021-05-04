@@ -13,6 +13,11 @@ void OnKey(GLFWwindow *window, int key, int scancode, int action, int mods) {
             case GLFW_KEY_SPACE:
                 pgame->playerJump();
                 break;
+            case GLFW_KEY_R:
+                if(pgame->isPaused()) {
+                    pgame->reset(); //not that reset
+                }
+                break;
         }
     }
 }

@@ -7,10 +7,13 @@ FlappyBlock::FlappyBlock()
     : playerJumpFlag(false), escFlag(false),
       playerVB(GL_STATIC_DRAW, 6 * 2 * sizeof(float)),
       wallsVB(singleWallVideoDataSize),
-      playerSpeedX(2.75f), playerSpeedY(1.0f), playerHeight(0.0f), distance(0.0f),
+      playerSpeedX(2.75f),
       shaderProgram(ShaderProgram::loadFromFile("resource/shaders/rect.vert", "resource/shaders/rect.frag")),
-      firstTick(true)
+      compositeProgram(ShaderProgram::loadFromFile("resource/shaders/composite.vert", "resource/shaders/composite.frag")),
+      firstTick(true), paused(true)
 {
+    reset();
+
     //init render
     wallsVB.setOnRealloc([&, this](const VertexBuffer &buffer) {
         buffer.bind(GL_ARRAY_BUFFER);
@@ -37,20 +40,26 @@ FlappyBlock::FlappyBlock()
 }
 
 void FlappyBlock::tick() {
+    if(escFlag) { //pause
+        escFlag = false;
+        paused = !paused;
+    }
+
+    if(paused) {
+        lastTick = std::chrono::steady_clock::now();
+        playerJumpFlag = false;
+        return;
+    }
+
     //init
     if(firstTick) {
         firstTick = false;
         lastTick = std::chrono::steady_clock::now();
     }
 
-    //handle events
-    if(playerJumpFlag) {
+    if(playerJumpFlag) { //jump
         playerJumpFlag = false;
         playerSpeedY = jumpStrength;
-    }
-
-    if(escFlag) {
-        escFlag = false; //TODO: pause
     }
 
     //update walls
@@ -75,7 +84,10 @@ void FlappyBlock::tick() {
     //crashing with walls
     for(auto &wall : walls) {
         auto dist = wall.distance - distance + wallWidth;
-        if(dist > 0.0f && dist < 0.5f * wallSpacing) { //closest && front wall
+        if(dist > wallSpacing) { //not begin
+            playerWasHit = false;
+        }
+        else if(dist > 0.0f && dist < 0.5f * wallSpacing) { //closest && front wall
             //aabb box testing
             auto playerBoundLeft = distance - 0.5f, playerBoundRight = playerBoundLeft + 1.0f;
             auto playerBoundTop = playerHeight + 0.5f, playerBoundBottom = playerBoundTop - 1.0f;
@@ -88,7 +100,7 @@ void FlappyBlock::tick() {
             };
 
             auto hasIntersection = [&](float s1min, float s1max, float s2min, float s2max) -> bool {
-                if(isSubset(s1min, s1max, s2min, s2max) || isSubset(s2min, s2max, s1min, s2max)) { //one is another's subset
+                if(isSubset(s1min, s1max, s2min, s2max) || isSubset(s2min, s2max, s1min, s1max)) { //one is another's subset
                     return true;
                 } else {
                     if(s1min < s2min) {
@@ -103,6 +115,9 @@ void FlappyBlock::tick() {
             if(hasIntersection(playerBoundLeft, playerBoundRight, gapBoundLeft, gapBoundRight) &&
                !isSubset(gapBoundBottom, gapBoundTop, playerBoundBottom, playerBoundTop)) { //crashed
                 playerWasHit = true;
+                paused = true;
+            } else {
+                playerWasHit = false;
             }
             break;
         }
@@ -117,6 +132,9 @@ void FlappyBlock::tick() {
 #include <glm/gtc/matrix_transform.hpp>
 
 void FlappyBlock::render() {
+    //render basic screen
+    renderTarget->bind();
+
     glClearColor(0.5f, 1.0f, 0.5f, 1.0f); //(very) light green
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -143,9 +161,21 @@ void FlappyBlock::render() {
         playerColor = glm::vec4(0.0f, green, blue, 1.0f);
     }
     shaderProgram.setUniform("color",playerColor);
-    playerWasHit = false;
     shaderProgram.setUniform("modelView", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, playerHeight, 0.0f)));
     shaderProgram.use();
+    playerVA.drawArrays(GL_TRIANGLES, 0, 6);
+
+    //composite
+    renderTarget->unbind();
+    renderTarget->bindTexture();
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glm::vec4 blendColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    if(paused) { //get darker when paused
+        blendColor = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
+    }
+    compositeProgram.setUniform("color", blendColor);
+    compositeProgram.use();
     playerVA.drawArrays(GL_TRIANGLES, 0, 6);
 }
 
@@ -154,7 +184,7 @@ void FlappyBlock::playerJump() {
 }
 
 void FlappyBlock::onEsc() {
-    escFlag = false;
+    escFlag = true;
 }
 
 void FlappyBlock::genWall() {
@@ -194,16 +224,35 @@ void FlappyBlock::genWall() {
 }
 
 void FlappyBlock::resizeFrame(int width, int height) {
+    //matrix
     float w = width, h = height;
     float ratio = w / h;
 
     /*float*/ halfWidth = ratio * frameHeight / 2.0f; //defined in class as shared data
     float halfHeight = frameHeight / 2.0f;
     shaderProgram.setUniform("projection", glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight));
+
+    //viewport
     glViewport(0, 0, width, height);
+
+    //framebuffer
+    this->renderTarget.reset(new RenderTarget(width, height));
 }
 
 bool FlappyBlock::isWallDistanceVisible(double dist) const noexcept {
     return std::abs(distance - dist) /*distance to center*/ < wallWidth / 2.0f + halfWidth;
+}
+
+void FlappyBlock::reset() {
+    walls.clear();
+    distance = 0.0;
+    playerHeight = 0.0f;
+    playerSpeedY = 1.0f;
+    paused = true;
+    playerWasHit = false;
+}
+
+bool FlappyBlock::isPaused() {
+    return paused;
 }
 

@@ -7,7 +7,7 @@ VertexArray::VertexArray() {
     glGenVertexArrays(1, &object);
 }
 
-VertexArray::VertexArray(VertexArray &&rhs) {
+VertexArray::VertexArray(VertexArray &&rhs) noexcept {
     this->object = rhs.object;
     rhs.object = 0;
 }
@@ -52,7 +52,7 @@ VertexBuffer::VertexBuffer(GLenum usage, GLsizei size)
     unbind(GL_ARRAY_BUFFER);
 }
 
-VertexBuffer::VertexBuffer(VertexBuffer &&rhs) {
+VertexBuffer::VertexBuffer(VertexBuffer &&rhs) noexcept {
     this->object = rhs.object;
     this->capacity = rhs.capacity;
     rhs.object = 0;
@@ -166,7 +166,7 @@ ShaderProgram ShaderProgram::loadFromFile(const std::filesystem::path &vertexSha
     return ShaderProgram(program);
 }
 
-ShaderProgram::ShaderProgram(ShaderProgram &&rhs) {
+ShaderProgram::ShaderProgram(ShaderProgram &&rhs) noexcept {
     this->object = rhs.object;
     rhs.object = 0;
 }
@@ -195,4 +195,49 @@ void ShaderProgram::use() const {
 
 void ShaderProgram::disuse() {
     glUseProgram(0);
+}
+
+RenderTarget::RenderTarget(GLuint width, GLuint height) {
+    glGenFramebuffers(1, &framebuffer);
+    glGenTextures(1, &texture);
+    bindTexture();
+
+    //init texture
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    bind();
+
+    //init framebuffer
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+    unbind();
+
+    unbindTexture();
+}
+
+RenderTarget::RenderTarget(RenderTarget && rhs) noexcept {
+    this->texture = rhs.texture;
+    this->framebuffer = rhs.framebuffer;
+}
+
+RenderTarget::~RenderTarget() {
+    glDeleteTextures(1, &texture);
+    glDeleteFramebuffers(1, &framebuffer);
+}
+
+void RenderTarget::bind() const {
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+}
+
+void RenderTarget::unbind() {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+
+void RenderTarget::bindTexture() const {
+    glBindTexture(GL_TEXTURE_2D, texture);
+}
+
+void RenderTarget::unbindTexture() {
+    glBindTexture(GL_TEXTURE_2D, 0);
 }

@@ -14,6 +14,10 @@ public:
     void playerJump();
     void onEsc();
     void resizeFrame(int w, int h);
+
+    void reset();
+
+    bool isPaused();
 private: //structures
     struct Wall {
         Wall(double distance, float height) noexcept
@@ -40,6 +44,7 @@ private: //data
     std::deque<Wall> walls;
     float playerSpeedX, playerSpeedY, playerHeight;
     double distance;
+    bool paused;
 
     //other data
     float halfWidth;
@@ -61,7 +66,8 @@ private: //data
     BlockyVideoMemoryPool wallsVB;
     VertexArray wallsVA;
     static constexpr GLsizei singleWallVideoDataSize = 6 * 2 * 2 * sizeof(float); //6 triangles * (top + bottom = 2) * sizeof(2 * float)
-    ShaderProgram shaderProgram;
+    ShaderProgram shaderProgram, compositeProgram;
+    std::unique_ptr<RenderTarget> renderTarget;
 };
 
 

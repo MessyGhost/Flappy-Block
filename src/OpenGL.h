@@ -8,7 +8,7 @@
 class VertexArray {
 public:
     VertexArray();
-    VertexArray(VertexArray &&);
+    VertexArray(VertexArray &&) noexcept;
     ~VertexArray();
 
     void setAttribute(GLuint index, GLuint size, GLenum type, bool normalized, GLuint stride, const void *offset) const;
@@ -26,7 +26,7 @@ private:
 class VertexBuffer {
 public:
     VertexBuffer(GLenum usage, GLsizei size);
-    VertexBuffer(VertexBuffer &&);
+    VertexBuffer(VertexBuffer &&) noexcept;
     ~VertexBuffer();
 
     GLuint size() const noexcept;
@@ -46,7 +46,7 @@ private:
     ShaderProgram(GLuint object);
 public:
     static ShaderProgram loadFromFile(const std::filesystem::path &vertexShaderPath, const std::filesystem::path &fragmentShaderPath);
-    ShaderProgram(ShaderProgram &&);
+    ShaderProgram(ShaderProgram &&) noexcept;
     ~ShaderProgram();
 
     void setUniform(const std::string &var, const glm::vec4 &val) const;
@@ -56,6 +56,31 @@ public:
     static void disuse();
 private:
     GLuint object;
+};
+
+/*!
+ * @brief A binding of framebuffer and texture 2D.
+ */
+class RenderTarget {
+public:
+    RenderTarget(GLuint width, GLuint height);
+    RenderTarget(RenderTarget &&) noexcept;
+    ~RenderTarget();
+
+    /*!
+     * @brief Bind framebuffer
+     */
+    void bind() const;
+
+    /*!
+     * @brief Unbind framebuffer
+     */
+    static void unbind();
+
+    void bindTexture() const;
+    static void unbindTexture();
+private:
+    GLuint framebuffer, texture;
 };
 
 #endif //FLAPPY_BLOCK_OPENGL_H
