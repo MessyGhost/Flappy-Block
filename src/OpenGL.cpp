@@ -43,7 +43,9 @@ void VertexArray::drawArrays(GLenum mode, GLuint first, GLsizei count) const {
     unbind();
 }
 
-VertexBuffer::VertexBuffer(GLenum usage, GLsizei size) {
+VertexBuffer::VertexBuffer(GLenum usage, GLsizei size)
+    : capacity(size)
+{
     glGenBuffers(1, &object);
     bind(GL_ARRAY_BUFFER);
     glBufferData(GL_ARRAY_BUFFER, size, nullptr, usage);
@@ -52,11 +54,16 @@ VertexBuffer::VertexBuffer(GLenum usage, GLsizei size) {
 
 VertexBuffer::VertexBuffer(VertexBuffer &&rhs) {
     this->object = rhs.object;
+    this->capacity = rhs.capacity;
     rhs.object = 0;
 }
 
 VertexBuffer::~VertexBuffer() {
     glDeleteBuffers(1, &object);
+}
+
+GLuint VertexBuffer::size() const noexcept {
+    return capacity;
 }
 
 void VertexBuffer::map(GLenum access, std::function<void(void *)> callback) const {

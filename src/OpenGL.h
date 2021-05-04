@@ -29,6 +29,8 @@ public:
     VertexBuffer(VertexBuffer &&);
     ~VertexBuffer();
 
+    GLuint size() const noexcept;
+
     void map(GLenum access, std::function<void(void *data)> callback) const;
 
     void bind(GLenum target) const;
@@ -36,6 +38,7 @@ public:
 
 private:
     GLuint object;
+    GLuint capacity;
 };
 
 class ShaderProgram {

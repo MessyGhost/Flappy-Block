@@ -3,7 +3,7 @@ project(flappy_block)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(flappy_block main.cpp OpenGL.cpp OpenGL.h FlappyBlock.cpp FlappyBlock.h RenderUtil.h RenderUtil.cpp)
+add_executable(flappy_block main.cpp OpenGL.cpp OpenGL.h FlappyBlock.cpp FlappyBlock.h RenderUtil.h RenderUtil.cpp BlockyVideoMemoryPool.cpp BlockyVideoMemoryPool.h)
 
 find_package(GLEW CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
