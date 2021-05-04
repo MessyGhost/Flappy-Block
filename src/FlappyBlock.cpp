@@ -84,10 +84,7 @@ void FlappyBlock::tick() {
     //crashing with walls
     for(auto &wall : walls) {
         auto dist = wall.distance - distance + wallWidth;
-        if(dist > wallSpacing) { //not begin
-            playerWasHit = false;
-        }
-        else if(dist > 0.0f && dist < 0.5f * wallSpacing) { //closest && front wall
+        if(dist > 0.0f && dist < 0.5f * wallSpacing) { //closest && front wall
             //aabb box testing
             auto playerBoundLeft = distance - 0.5f, playerBoundRight = playerBoundLeft + 1.0f;
             auto playerBoundTop = playerHeight + 0.5f, playerBoundBottom = playerBoundTop - 1.0f;
@@ -176,6 +173,8 @@ void FlappyBlock::render() {
     }
     compositeProgram.setUniform("color", blendColor);
     compositeProgram.use();
+    //the shader program will use its own vertices instead of the vertices of player
+    //it's just to summit a draw call
     playerVA.drawArrays(GL_TRIANGLES, 0, 6);
 }
 

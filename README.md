@@ -6,6 +6,10 @@
 
 ![preview](preview.png)
 
+## 操作
+
+按`space`起跳，`esc`暂停，暂停时按`R`重置。
+
 ## 硬件需求
 
 - 支持OpenGL 3.3 core的显卡  
