@@ -134,9 +134,9 @@ void FlappyBlock::render() {
         playerColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
     } else {
         //player's color will change while marching
-        float green = distance / wallSpacing / 32.0f, blue = 0.0f;
+        float green = distance / wallSpacing / 64.0f, blue = 0.0f;
         while(green > 1.0f) {
-            blue += 1.0f / 32.0f;
+            blue += 1.0f / 64.0f;
             green -= 1.0f;
         }
         blue = std::clamp(blue, 0.0f, 1.0f);

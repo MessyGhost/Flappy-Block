@@ -9,4 +9,5 @@ find_package(GLEW CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 
+target_include_directories(flappy_block PRIVATE ${GLEW_INCLUDE_DIRECTORY} PRIVATE ${GLFW_INCLUDE_DIRECTORY} PRIVATE ${GLM_INCLUDE_DIRECTORY})
 target_link_libraries(flappy_block PRIVATE GLEW::GLEW PRIVATE glfw PRIVATE glm)
