@@ -1,5 +1,6 @@
 #include "FlappyBlock.h"
 #include <random>
+#include <cstring>
 #include "RenderUtil.h"
 
 
@@ -31,7 +32,7 @@ FlappyBlock::FlappyBlock()
     playerVB.map(GL_WRITE_ONLY, [&](void *data) {
         auto vertices = makeRect(-0.5f, 0.5f, 0.5f, -0.5f);
 
-        memcpy(data, vertices.data(), 6 * 2 * sizeof(float));
+        std::memcpy(data, vertices.data(), 6 * 2 * sizeof(float));
     });
 
     playerVB.bind(GL_ARRAY_BUFFER);
@@ -218,7 +219,7 @@ void FlappyBlock::genWall() {
 
        vertices.insert(vertices.end(), topWall.begin(), topWall.end());
        vertices.insert(vertices.end(), bottomWall.begin(), bottomWall.end());
-       memcpy((uint8_t *)data + offset, vertices.data(), vertices.size() * sizeof(float));
+       std::memcpy((uint8_t *)data + offset, vertices.data(), vertices.size() * sizeof(float));
     });
 }
 

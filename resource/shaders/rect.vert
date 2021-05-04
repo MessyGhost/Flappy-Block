@@ -1,6 +1,6 @@
 #version 330 core
 
-in layout(location = 0) vec2 pos;
+layout(location = 0) in vec2 pos;
 
 uniform mat4 projection;
 uniform mat4 modelView;

@@ -1,4 +1,5 @@
 #include "BlockyVideoMemoryPool.h"
+#include <cstring>
 
 BlockyVideoMemoryPool::BlockyVideoMemoryPool(GLuint blockSize)
 :blockSize(blockSize)
@@ -56,11 +57,11 @@ void BlockyVideoMemoryPool::realloc(GLuint capacity) {
     if(pbuffer) {
         auto *buffer = std::malloc(bufferSize);
         pbuffer->map(GL_READ_ONLY, [&](void *data) {
-           memcpy(buffer, data, bufferSize);
+           std::memcpy(buffer, data, bufferSize);
         });
 
         newBuffer->map(GL_WRITE_ONLY, [&](void *data) {
-           memcpy(data, buffer, bufferSize);
+           std::memcpy(data, buffer, bufferSize);
         });
         std::free(buffer);
     }

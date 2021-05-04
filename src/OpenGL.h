@@ -1,6 +1,6 @@
 #ifndef FLAPPY_BLOCK_OPENGL_H
 #define FLAPPY_BLOCK_OPENGL_H
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <functional>
 #include <filesystem>

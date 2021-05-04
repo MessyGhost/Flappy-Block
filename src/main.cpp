@@ -1,6 +1,6 @@
 #include <memory>
 #include "FlappyBlock.h"
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 std::unique_ptr<FlappyBlock> pgame;
 
