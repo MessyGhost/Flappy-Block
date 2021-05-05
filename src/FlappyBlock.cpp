@@ -112,7 +112,7 @@ void FlappyBlock::tick() {
 
             if(hasIntersection(playerBoundLeft, playerBoundRight, gapBoundLeft, gapBoundRight) &&
                !isSubset(gapBoundBottom, gapBoundTop, playerBoundBottom, playerBoundTop)) { //crashed
-                if(!playerWasHit) {
+                if(!playerWasHit) { //to avoid trigger change-flag
                     playerWasHit = true;
                 }
                 if(playerWasHit.getChangeFlagAndReset()) {
