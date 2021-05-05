@@ -8,7 +8,7 @@ FlappyBlock::FlappyBlock()
     : playerJumpFlag(false), escFlag(false),
       playerVB(GL_STATIC_DRAW, 6 * 2 * sizeof(float)),
       wallsVB(singleWallVideoDataSize),
-      playerSpeedX(2.75f),
+      playerSpeedX(6.0f),
       shaderProgram(ShaderProgram::loadFromFile("resource/shaders/rect.vert", "resource/shaders/rect.frag")),
       compositeProgram(ShaderProgram::loadFromFile("resource/shaders/composite.vert", "resource/shaders/composite.frag")),
       firstTick(true), paused(true)
@@ -41,9 +41,15 @@ FlappyBlock::FlappyBlock()
 }
 
 void FlappyBlock::tick() {
-    if(escFlag) { //pause
+    if(escFlag) {
         escFlag = false;
-        paused = !paused;
+        if(playerWasHit) { //reset
+            reset();
+            return;
+        }
+        else { //pause
+            paused = !paused;
+        }
     }
 
     if(paused) {
@@ -85,7 +91,7 @@ void FlappyBlock::tick() {
     //crashing
     bool crashWithWalls = false, crashWithFloor = false;
     //crashing with ceil
-    playerHeight = std::clamp(playerHeight, -frameHeight / 2.0f + 0.5f, frameHeight / 2.0f - 0.5f);
+    playerHeight = std::min(playerHeight, frameHeight / 2.0f - 0.5f);
     //crashing with walls
     for(auto &wall : walls) {
         auto dist = wall.distance - distance + wallWidth;
@@ -120,6 +126,11 @@ void FlappyBlock::tick() {
             }
             break;
         }
+    }
+    //crashing with floor
+    if(playerHeight <= -frameHeight / 2.0f + 0.5f) {
+        crashWithFloor = true;
+        playerHeight = -frameHeight / 2.0f + 0.5f;
     }
     bool _playerWasHit = crashWithWalls | crashWithFloor;
     if(!playerWasHit && _playerWasHit) {

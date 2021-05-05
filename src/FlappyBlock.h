@@ -50,14 +50,14 @@ private: //data
 
     //constants
     //gravitational acceleration
-    static constexpr float gravity = -9.8f;
+    static constexpr float gravity = -17.0f;
     //the speed on y axis to set when jumping
-    static constexpr float jumpStrength = 6.0f;
+    static constexpr float jumpStrength = 8.0f;
     //the distances between two walls
     static constexpr float wallSpacing = 8.0f;
     static constexpr float wallWidth = 1.5f;
     //the width of the gap to go through
-    static constexpr float wallGap = jumpStrength * 3.0f / 4.0f;
+    static constexpr float wallGap = jumpStrength * 1.0f / 2.0f;
     //if higher, the gap will be more close to the center
     static constexpr float wallPadding = 1.0f;
     static constexpr float frameHeight = 16.0f;
