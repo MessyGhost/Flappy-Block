@@ -82,6 +82,10 @@ void FlappyBlock::tick() {
 
     distance += playerSpeedX * deltaSecond;
 
+    //crashing
+    bool crashWithWalls = false, crashWithFloor = false;
+    //crashing with ceil
+    playerHeight = std::clamp(playerHeight, -frameHeight / 2.0f + 0.5f, frameHeight / 2.0f - 0.5f);
     //crashing with walls
     for(auto &wall : walls) {
         auto dist = wall.distance - distance + wallWidth;
@@ -112,21 +116,16 @@ void FlappyBlock::tick() {
 
             if(hasIntersection(playerBoundLeft, playerBoundRight, gapBoundLeft, gapBoundRight) &&
                !isSubset(gapBoundBottom, gapBoundTop, playerBoundBottom, playerBoundTop)) { //crashed
-                if(!playerWasHit) { //to avoid trigger change-flag
-                    playerWasHit = true;
-                }
-                if(playerWasHit.getChangeFlagAndReset()) {
-                    paused = true;
-                }
-            } else {
-                playerWasHit = false;
+                crashWithWalls = true;
             }
             break;
         }
     }
-    //crashing with floor and ceil
-    playerHeight = std::clamp(playerHeight, -frameHeight / 2.0f + 0.5f, frameHeight / 2.0f - 0.5f);
-
+    bool _playerWasHit = crashWithWalls | crashWithFloor;
+    if(!playerWasHit && _playerWasHit) {
+        paused = true;
+    }
+    playerWasHit = _playerWasHit;
 
     lastTick = std::chrono::steady_clock::now(); //update last tick
 }
@@ -155,7 +154,7 @@ void FlappyBlock::render() {
     } else {
         //player's color will change while marching
         float green = distance / wallSpacing / 64.0f, blue = 0.0f;
-        blue = std::clamp(1.0f / 64.0f * std::floor(green), 0.0f, 1.0f);
+        blue = std::clamp(std::floor(green) / 64.0f, 0.0f, 1.0f);
         playerColor = glm::vec4(0.0f, green - std::floor(green), blue, 1.0f);
     }
     shaderProgram.setUniform("color",playerColor);

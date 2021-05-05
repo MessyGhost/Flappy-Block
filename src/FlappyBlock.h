@@ -2,7 +2,6 @@
 #define FLAPPY_BLOCK_FLAPPYBLOCK_H
 #include "OpenGL.h"
 #include "BlockyVideoMemoryPool.h"
-#include "TypeProxy.hpp"
 #include <queue>
 #include <chrono>
 
@@ -36,7 +35,7 @@ private: //data
     //events
     bool playerJumpFlag;
     bool escFlag;
-    TypeProxy<bool> playerWasHit;
+    bool playerWasHit;
     bool firstTick;
     std::chrono::time_point<std::chrono::steady_clock> lastTick;
 
