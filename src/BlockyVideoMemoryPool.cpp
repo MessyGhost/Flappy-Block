@@ -27,6 +27,7 @@ GLuint BlockyVideoMemoryPool::alloc() {
         for(auto used : usage) { //search unused block
             if(!used) {
                 index = i;
+                break;
             }
             ++i;
         }
@@ -36,6 +37,7 @@ GLuint BlockyVideoMemoryPool::alloc() {
         }
         else { //succeed
             usage[index] = true;
+            break;
         }
     }
     return index * blockSize;
