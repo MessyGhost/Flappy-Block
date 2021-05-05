@@ -8,7 +8,8 @@
 
 ## 操作
 
-按`space`起跳，`esc`暂停，暂停时按`R`重置。
+按`space`起跳，`esc`暂停，暂停时按`R`重置。  
+刚打开游戏是默认是暂停的。
 
 ## 硬件需求
 
@@ -26,7 +27,7 @@
 cmake . -DCMAKE_TOOLCHAIN_PATH=<[vcpkg安装路径]/scripts/buildsystems/vcpkg.cmake>
 ```
 
-*最新的commit经过测试，已经可以在`Arch Linux`下编译运行。构建时，你可能需要额外安装`mesa`。*
+*最新的commit经过测试，已经可以在`Arch Linux`下编译运行。（不需要`vcpkg`）构建时，你可能需要额外安装`mesa`。*
 
 ## 其他
 

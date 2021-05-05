@@ -151,12 +151,8 @@ void FlappyBlock::render() {
     } else {
         //player's color will change while marching
         float green = distance / wallSpacing / 64.0f, blue = 0.0f;
-        while(green > 1.0f) {
-            blue += 1.0f / 64.0f;
-            green -= 1.0f;
-        }
-        blue = std::clamp(blue, 0.0f, 1.0f);
-        playerColor = glm::vec4(0.0f, green, blue, 1.0f);
+        blue = std::clamp(1.0f / 64.0f * std::floor(green), 0.0f, 1.0f);
+        playerColor = glm::vec4(0.0f, green - std::floor(green), blue, 1.0f);
     }
     shaderProgram.setUniform("color",playerColor);
     shaderProgram.setUniform("modelView", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, playerHeight, 0.0f)));
